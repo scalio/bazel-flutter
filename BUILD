@@ -1,7 +1,8 @@
-load(":flutter_android.bzl", "flutter_android_appbundle", "flutter_build_aot")
+load(":flutter_android.bzl", "flutter_build_aot", "flutter_build_aot_2")
 
-flutter_android_appbundle(
-    name = "app_android_release",
+flutter_build_aot_2(
+    name = "app_android_aot_2",
+    src = "lib/main.dart",
 )
 
 flutter_build_aot(

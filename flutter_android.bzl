@@ -62,15 +62,17 @@ def _flutter_build_aot_implsdsd(ctx):
         use_default_shell_env = True,
     )
 
-#
-#def flutter_build_aot(name, src, **kwargs):
-#  """Runs flutter build appbundle.
-#
-#  The generated file is prefixed with 'small_'.
-#  """
-#  native.genrule(
-#    name = name,
-#    srcs = [src],
-#    outs = ["bazel-out/app/intermediates/flutter/release/android-arm"],
-#    cmd = "flutter build aot --suppress-analytics --quiet --target lib/main.dart --output-dir C:/Users/mig35/Documents/work/projects/ip/scalio/bazelSampleFlutter/bazel-out/app/intermediates/flutter/release/android-arm --target-platform android-arm --release",
-#  )
+
+def flutter_build_aot_2(name, src, **kwargs):
+  """Runs flutter build appbundle.
+
+  The generated file is prefixed with 'small_'.
+  """
+  native.genrule(
+    name = name,
+    srcs = [src],
+    outs = ["bazelssss/app/intermediates/flutter/release/android-arm"],
+    tags = ["no-ide"],
+#    cmd = "flutter.bat build aot --suppress-analytics --quiet --target $< --output-dir bazelssss/app/intermediates/flutter/release/android-arm --target-platform android-arm --release",
+    cmd = "flutter.bat doctor",
+  )
