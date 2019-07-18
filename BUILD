@@ -1,11 +1,12 @@
-load(":flutter_android.bzl", "flutter_build_aot", "flutter_build_aot_2")
+load(":flutter_android.bzl", "flutter_build", "flutter_build_aot_2")
 
 flutter_build_aot_2(
     name = "app_android_aot_2",
     src = "lib/main.dart",
 )
 
-flutter_build_aot(
+flutter_build(
     name = "app_android_aot",
-    srcs = ["lib/main.dart"],
+    src = "lib/main.dart",
+    arch = "armeabi-v7a",
 )
