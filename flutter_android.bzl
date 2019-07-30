@@ -2,7 +2,7 @@ def _flutter_build_aot_and_bundle(ctx, src, out, arch, flutter_root):
     aot_bundle_path = "app/intermediates/flutter/release/{arch}".format(
             arch = ctx.attr.arch,
         )
-    cmd_aot_tpl = (" {flutter_root}/bin/flutter.bat build aot --suppress-analytics --quiet "
+    cmd_aot_tpl = (" {flutter_root}/bin/flutter build aot --suppress-analytics " # --quiet
                 + "--target {src} "
                 + "--output-dir {out} "
                 + "--target-platform android-arm "
@@ -14,7 +14,7 @@ def _flutter_build_aot_and_bundle(ctx, src, out, arch, flutter_root):
             src = src.path,
 #            arch = arch, todo add platform arch map
         )
-    cmd_bundle_tpl = (" {flutter_root}/bin/flutter.bat build bundle "
+    cmd_bundle_tpl = (" {flutter_root}/bin/flutter build bundle "
                 + "--target {src} "
                 + "--target-platform android-arm "
                 + "--precompiled "
@@ -48,9 +48,12 @@ def _flutter_build_aot_and_bundle(ctx, src, out, arch, flutter_root):
 
     ctx.actions.run_shell(
         outputs = [out],
-        command = cmd_aot + "; " + cmd_bundle + "; " + cmd_cp_app_so + "; " + cmd_cp_assets + "; " + cmd_cp_flutter_jar,
+        command = "pwd; " + cmd_aot,
         progress_message = "Compiling flutter app so file and assets",
         use_default_shell_env = True,
+        execution_requirements = {
+            "no-sandbox": "1"
+        }
     )
 
 def _flutter_build_impl(ctx):
