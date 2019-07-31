@@ -24,7 +24,7 @@ PATH_TO_APP = "android/app/src/main/"
 java_import(
         name = "flutter_jar",
         jars = [
-            "bazel-bin/app/result/flutter/release/flutter.jar",
+            "bazel-bin/flutter/release/flutter.jar",
         ],
         deps = [
         ]
@@ -35,10 +35,11 @@ android_library(
     custom_package = PACKAGE,
     manifest = PATH_TO_APP + MANIFEST,
     resource_files = glob([PATH_TO_APP + "res/**"]),
-    assets = glob(["bazel-bin/app/result/flutter/release/assets/**"]),
-    assets_dir = "bazel-bin/app/result/flutter/release/assets",
+    assets = glob(["bazel-bin/flutter/release/assets/**"]),
+    assets_dir = "bazel-bin/flutter/release/assets",
     enable_data_binding = False,
     deps = [
+        ":app_android_aot",
         ":flutter_jar",
         artifact("androidx.constraintlayout:constraintlayout"),
         artifact("com.google.android.material:material"),
@@ -79,7 +80,7 @@ kt_android_library(
 
 android_binary(
     name = "bazel",
-    manifest = MANIFEST,
+    manifest = PATH_TO_APP + MANIFEST,
     custom_package = PACKAGE,
     manifest_values = {
         "minSdkVersion": "21",

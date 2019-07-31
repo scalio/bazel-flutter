@@ -57,7 +57,7 @@ def _flutter_build_aot_and_bundle(ctx, src, out, arch, flutter_root):
     )
 
 def _flutter_build_impl(ctx):
-    result_path = "app/result/flutter/release"
+    result_path = "flutter/release"
     executable = ctx.actions.declare_directory(result_path)
     _flutter_build_aot_and_bundle(
         ctx,
