@@ -12,6 +12,7 @@ def _make_providers(ctx, providers, transitive_files = depset(order = "default")
         flutter = providers.flutter,
         providers = [
             providers.flutter,
+            providers.java,
             DefaultInfo(
                 files = depset([ctx.outputs.jar]),
                 runfiles = ctx.runfiles(

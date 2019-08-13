@@ -46,7 +46,6 @@ _common_attr = utils.add_dicts(
             doc = """A list of dependencies of this rule.See general comments about `deps` at
         [Attributes common to all build rules](https://docs.bazel.build/versions/master/be/common-definitions.html#common-attributes).""",
             providers = [
-                [JavaInfo],
             ],
             allow_files = False,
         ),

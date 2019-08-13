@@ -39,7 +39,7 @@ def _fold_jars_action(ctx, rule_kind, output_jar, input_jars):
     args.add("--output", output_jar)
     args.add_all(input_jars, before_each = "--sources")
     ctx.actions.run(
-        mnemonic = "KotlinFoldJars",
+        mnemonic = "FlutterFoldJars",
         inputs = input_jars,
         outputs = [output_jar],
         executable = ctx.executable._singlejar,
@@ -73,7 +73,6 @@ def _build_aot_action(ctx):
         fail("no sources provided")
 
     resources_aot_output_path = ctx.actions.declare_directory(ctx.label.name + "-aot")
-    resources_aot_output = ctx.actions.declare_file(ctx.label.name + "-aot/app.so")
 
     aot_args = ctx.actions.args()
     aot_args.add("build", "aot")
@@ -96,7 +95,7 @@ def _build_aot_action(ctx):
 
     resources_so_output = ctx.actions.declare_file(ctx.label.name + "-aot-lib/lib/libapp.so")
     so_args = ctx.actions.args()
-    so_args.add(resources_aot_output.path, resources_so_output.path)
+    so_args.add(resources_aot_output_path.path + "/app.so", resources_so_output.path)
 
     ctx.actions.run(
         outputs = [resources_so_output],
@@ -110,7 +109,7 @@ def _build_aot_action(ctx):
         }
     )
 
-    return resources_so_output
+    return resources_aot_output_path
 
 def _build_bundle_assets_action(ctx):
     srcs = _partition_srcs(ctx.files.srcs)
@@ -232,6 +231,16 @@ def flutter_jvm_compile_action(ctx, rule_kind, output_jar):
     )
 
     return struct(
+        java = JavaInfo(
+            output_jar = ctx.outputs.jar,
+            compile_jar = ctx.outputs.jar,
+            source_jar = ctx.outputs.srcjar,
+            #  jdeps = ctx.outputs.jdeps,
+            deps = deps,
+            runtime_deps = [d[JavaInfo] for d in ctx.attr.runtime_deps],
+            exports = [d[JavaInfo] for d in getattr(ctx.attr, "exports", [])],
+            neverlink = getattr(ctx.attr, "neverlink", False),
+        ),
         flutter = _FlutterJvmInfo(
             srcs = ctx.files.srcs,
             module_name = module_name,
@@ -270,8 +279,16 @@ def flutter_jvm_produce_jar_actions(ctx, rule_kind):
     output_merge_list = output_merge_list + [_resource_flutter_jar_action(ctx)]
     output_merge_list = output_merge_list + [_build_aot_action(ctx)]
 
-    # Setup the merge action
-    _fold_jars_action(ctx, rule_kind, output_jar, output_merge_list)
+    # If the merge list is not empty the kotlin compiler should compile to an intermediate jar.
+    if len(output_merge_list) > 0:
+        # Declare the intermediate jar
+        kt_compile_output_jar = ctx.actions.declare_file(ctx.label.name + "-flutterclass.jar")
+
+        # the first entry in the merge list is the result of the kotlin compile action.
+        output_merge_list = [kt_compile_output_jar] + output_merge_list
+
+        # Setup the merge action
+        _fold_jars_action(ctx, rule_kind, output_jar, output_merge_list)
 
     # Setup the compile action.
     return flutter_jvm_compile_action(
