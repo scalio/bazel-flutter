@@ -1,12 +1,10 @@
-load(":flutter_android.bzl", "flutter_build")
+load("//:flutter/flutter.bzl", "flutter_android_library")
 
-flutter_build(
+flutter_android_library(
     name = "app_android_aot",
-    src = "lib/main.dart",
-    arch = "armeabi-v7a",
+    srcs = glob(["lib/main.dart"]),
     flutter_root = "/e/progs/flutter",
 )
-
 
 
 
