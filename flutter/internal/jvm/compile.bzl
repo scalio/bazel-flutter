@@ -40,12 +40,12 @@ def _fold_jars_action(ctx, rule_kind, output_jar, input_jars):
     args.add_all(input_jars, before_each = "--sources")
     ctx.actions.run(
         mnemonic = "FlutterFoldJars",
-        inputs = input_jars,
         outputs = [output_jar],
         executable = ctx.executable._singlejar,
         arguments = [args],
         progress_message = "Merging Flutter output jar %s from %d inputs" % (ctx.label, len(input_jars)),
     )
+    return output_jar
 
 def _resource_flutter_jar_action(ctx):
     arch = "android-arm"
@@ -181,61 +181,18 @@ def flutter_jvm_compile_action(ctx, rule_kind, output_jar):
     module_name = _utils.derive_module_name(ctx)
     friend_paths = depset()
 
-    classes_directory = _declare_output_directory(ctx, "jvm", "classes")
-    generated_classes_directory = _declare_output_directory(ctx, "jvm", "generated_classes")
-    sourcegen_directory = _declare_output_directory(ctx, "jvm", "sourcegenfiles")
-    temp_directory = _declare_output_directory(ctx, "jvm", "temp")
-
     args = _utils.init_args(ctx, rule_kind, module_name)
 
-    args.add("--classdir", classes_directory.path)
-    args.add("--sourcegendir", sourcegen_directory.path)
-    args.add("--tempdir", temp_directory.path)
-    args.add("--kotlin_generated_classdir", generated_classes_directory.path)
-
-    args.add("--output", output_jar)
-    args.add("--kotlin_output_jdeps", ctx.outputs.jdeps)
-    args.add("--kotlin_output_srcjar", ctx.outputs.srcjar)
-
-    args.add("--kotlin_friend_paths", "\n".join(friend_paths.to_list()))
-
-    args.add_all("--classpath", compile_jars)
-    args.add_all("--sources", srcs.all_srcs, omit_if_empty = True)
-
     # Collect and prepare plugin descriptor for the worker.
-    progress_message = "Compiling Flutter to SO %s { dart: %d }" % (
+    progress_message = "Merging SO %s { dart: %d }" % (
         ctx.label,
         len(srcs.dart.to_list()),
-    )
-
-
-    ctx.actions.run(
-        mnemonic = "FlutterCompile",
-        inputs = depset(ctx.files.srcs, transitive = [compile_jars]),
-        outputs = [
-            output_jar,
-            ctx.outputs.jdeps,
-            ctx.outputs.srcjar,
-            sourcegen_directory,
-            classes_directory,
-            temp_directory,
-            generated_classes_directory,
-        ],
-        executable = getattr(ctx.attr, "flutter_root"),
-        execution_requirements = {"supports-workers": "1"},
-        arguments = [args],
-        progress_message = progress_message,
-        env = {
-            "LC_CTYPE": "en_US.UTF-8" # For Java source files
-        },
     )
 
     return struct(
         java = JavaInfo(
             output_jar = ctx.outputs.jar,
             compile_jar = ctx.outputs.jar,
-            source_jar = ctx.outputs.srcjar,
-            #  jdeps = ctx.outputs.jdeps,
             deps = deps,
             runtime_deps = [d[JavaInfo] for d in ctx.attr.runtime_deps],
             exports = [d[JavaInfo] for d in getattr(ctx.attr, "exports", [])],
@@ -246,11 +203,9 @@ def flutter_jvm_compile_action(ctx, rule_kind, output_jar):
             module_name = module_name,
             # intelij aspect needs this.
             outputs = struct(
-                jdeps = ctx.outputs.jdeps,
                 jars = [struct(
                     class_jar = ctx.outputs.jar,
                     ijar = None,
-                    source_jars = [ctx.outputs.srcjar],
                 )],
             ),
         ),
@@ -267,11 +222,8 @@ def flutter_jvm_produce_jar_actions(ctx, rule_kind):
     # The jar that is compiled from sources.
     output_jar = ctx.outputs.jar
 
-    # Indirection -- by default it is the same as the output_jar.
-    kt_compile_output_jar = output_jar
-
     # A list of jars that should be merged with the output_jar, start with the resource jars if any were provided.
-    output_merge_list = ctx.files.resource_jars
+    output_merge_list = []
 
     # If this rule has any resources declared setup a zipper action to turn them into a jar and then add the declared
     # zipper output to the merge list.
@@ -279,20 +231,9 @@ def flutter_jvm_produce_jar_actions(ctx, rule_kind):
     output_merge_list = output_merge_list + [_resource_flutter_jar_action(ctx)]
     output_merge_list = output_merge_list + [_build_aot_action(ctx)]
 
-    # If the merge list is not empty the kotlin compiler should compile to an intermediate jar.
-    if len(output_merge_list) > 0:
-        # Declare the intermediate jar
-        kt_compile_output_jar = ctx.actions.declare_file(ctx.label.name + "-flutterclass.jar")
-
-        # the first entry in the merge list is the result of the kotlin compile action.
-        output_merge_list = [kt_compile_output_jar] + output_merge_list
-
-        # Setup the merge action
-        _fold_jars_action(ctx, rule_kind, output_jar, output_merge_list)
-
     # Setup the compile action.
     return flutter_jvm_compile_action(
         ctx,
         rule_kind = rule_kind,
-        output_jar = kt_compile_output_jar,
+        output_jar = _fold_jars_action(ctx, rule_kind, output_jar, output_merge_list),
     )
