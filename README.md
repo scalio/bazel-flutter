@@ -1,4 +1,4 @@
-# Bazel Flutter Sample
+# Bazel Flutter Starter
 
 This repository contains simple Flutter application and its Bazel build files. To build these samples, do the following:
 
