@@ -1,6 +1,15 @@
-# Bazel Flutter Starter
+![Bazel at Scalio](https://raw.githubusercontent.com/scalio/bazel-status/master/assets/scalio-bf.svg?sanitize=true)
 
-This repository contains simple Flutter application and its Bazel build files. To build these samples, do the following:
+<h1 align="center">Bazel Flutter Starter</h1>
+
+<p align="center">
+  A starter app made with <a href="https://flutter.dev/">Flutter</a> -- built <b>using <a href="https://bazel.build/">Bazel</a></b>
+</p>
+
+&nbsp;
+## Overview
+
+To build these samples, do the following:
 
 * Update you PATH and set up `ANDROID_HOME` variable as it is written [here](https://docs.bazel.build/versions/master/tutorial/android-app.html#integrate-with-the-android-sdk)
 * Run `bazel build //app/src/main:bazel` to build project
