@@ -3,7 +3,7 @@
 <h1 align="center">Bazel Flutter Starter</h1>
 
 <p align="center">
-  A starter app made with <a href="https://flutter.dev/">Flutter</a> -- built <b>using <a href="https://bazel.build/">Bazel</a></b>
+  A starter app written in Dart for <a href="https://flutter.dev/">Flutter</a> -- built <b>using <a href="https://bazel.build/">Bazel</a></b>
 </p>
 
 &nbsp;
