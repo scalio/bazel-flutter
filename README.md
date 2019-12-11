@@ -1,4 +1,4 @@
-![Bazel at Scalio](https://raw.githubusercontent.com/scalio/bazel-status/master/assets/scalio-bf.svg?sanitize=true)
+![Bazel at Scalio](https://raw.githubusercontent.com/scalio/bazel/master/assets/scalio-bf.svg?sanitize=true)
 
 <h1 align="center">Bazel Flutter Starter</h1>
 
@@ -38,7 +38,7 @@ samples, guidance on mobile development, and a full API reference.
 <p align="center">
     <br/>
     <a href="https://scal.io/">
-        <img src="https://raw.githubusercontent.com/scalio/bazel-status/master/assets/scalio-logo.svg?sanitize=true" />
+        <img src="https://raw.githubusercontent.com/scalio/bazel/master/assets/scalio-logo.svg?sanitize=true" />
     </a>
     <br/>
 </p>
